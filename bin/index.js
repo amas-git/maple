@@ -1,6 +1,23 @@
 #!/usr/bin/env node
 'use strict';
-const Maple = require('../src/maple');
+const program = require('commander');
+const {run_maple} = require('../src/maple');
+const $package = require('../package');
 
+program
+    .version($package.version)
+    .description($package.description);
 
-console.log(`Hello Maple`);
+// run
+program.command('run')
+    .alias('r')
+    .description('run <script>')
+    .action((script) => {
+        run_maple(script);
+    });
+
+program.parse(process.argv);
+
+function cmd_run(name) {
+    console.log(`${name}`);
+}
