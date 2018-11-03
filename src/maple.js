@@ -435,8 +435,6 @@ class Maple {
 
 function run_maple(file) {
     const maple = new Maple(file);
-    maple.addFunction("L",(t) => t.toUpperCase(),"");
-
     readline(file, (line, num) => {
         if(line == null) {
             maple.tree();
@@ -469,6 +467,7 @@ function readline(file, cb) {
     });
 }
 
-//run_maple("maple/orm.mp");
-run_maple("maple/ELK.mp");
-//console.log(mcore.mcall({a:1, b:2}, 'return a+b'));
+module.exports = {
+    run_maple,
+    Maple
+}
