@@ -1,0 +1,9 @@
+{
+  "name": "maple",
+  "version": "1.0.0",
+  "description": "A simple script for meta programming",
+  "main": "index.js",
+  "repository": "https://github.com/amas-git/maple",
+  "author": "amas <zhoujb.cn@gmail.com>",
+  "license": "Apache 2.0"
+}
