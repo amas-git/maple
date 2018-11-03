@@ -5,5 +5,9 @@
   "main": "index.js",
   "repository": "https://github.com/amas-git/maple",
   "author": "amas <zhoujb.cn@gmail.com>",
-  "license": "Apache 2.0"
+  "license": "Apache 2.0",
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "js-yaml": "^3.12.0"
+  }
 }
