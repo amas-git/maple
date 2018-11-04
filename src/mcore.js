@@ -128,20 +128,34 @@ function convertId(keys=[]) {
     });
 }
 
-function mcall(os, code) {
-    return new Function(convertId(Object.keys(os)), code).apply(null, Object.values(os));
+/**
+ * @param os the context objects
+ * @param code the code to be eval
+ * @param thisArg this object
+ * @returns {*} the eval result
+ */
+function mcall(os, code, thisArg = null) {
+    return new Function(convertId(Object.keys(os)), code).apply(thisArg, Object.values(os));
 }
 
-function exeval($os, $code) {
-    return mcall(joinObjects($os), `${$code}`);
+function exeval($os, $code, thisArg = null) {
+    return mcall(joinObjects($os), `${$code}`, thisArg);
 }
 
-function template(env, template, enabled=true) {
+/***
+ * eval the template string
+ * @param env Maple object
+ * @param template the template strings
+ * @param enabled eval template or not (default tue)
+ * @param thisArg bind thisArg object when eval template
+ * @returns {*} the eval result
+ */
+function template(env, template, enabled=true, thisArg = null) {
     if(!enabled) {
         return template;
     }
     let $T       = template.replace(/`/g, '\\`');
-    return exeval(env.expose(), `return \`${$T}\`;`);
+    return exeval(env.expose(), `return \`${$T}\`;`, thisArg);
 }
 
 function flat(input){

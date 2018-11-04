@@ -74,11 +74,12 @@ class Section {
      * @param env
      * @param params formal params
      * @param args actual params
+     * @param this object
      * @returns {Array}
      */
-    apply(env, params, args) {
+    apply(env, params, args, thisArg = null) {
         env.changeContext(_.zipObject(params, args));
-        let rs = this.map(env);
+        let rs = this.map(env, [], true, thisArg);
         env.restoreContext();
         return Maple.printrs(rs);
     }
@@ -87,18 +88,19 @@ class Section {
      * @param env
      * @param rs 保存求值结果
      * @param template 是否在env下求值template
+     * @param thisArg this object in section body
      * @returns {Array}
      */
-    map(env, rs=[], template=true) {
-        mcore.push(rs, mcore.template(env, this.join("\n"), template));
+    map(env, rs=[], template=true, thisArg = null) {
+        mcore.push(rs, mcore.template(env, this.join("\n"), template, thisArg));
         this.sections.forEach((s) => {
             rs.push(s.eval(env));
         });
         return rs;
     }
 
-    mapFlat(env, rs=[], template=true) {
-        return mcore.flat(this.map(env,rs,template));
+    mapFlat(env, rs=[], template=true, thisArg = null) {
+        return mcore.flat(this.map(env,rs,template, thisArg));
     }
 
     eval(env) {
@@ -148,7 +150,8 @@ class Section {
                     let func = env.functions[cn];
                     if(func) {
                         // 模板函数
-                        rs = func(...params);
+                        //rs = func(...params);
+                        rs = func.bind(input)(...params);
                     } else {
                         params.unshift(cn);
                         rs = env.handlers['exec'](env, this, params, input);
@@ -177,7 +180,7 @@ class Section {
 const BASE_HANDLER = {
     func(env, section, params) {
         let [fname,  ...fparams] = params;
-        let fn = (...args) => { return section.apply(env, fparams, args); };
+        let fn = function(...args) { return section.apply(env, fparams, args, this); };
         env.addFunction(fname, fn, "");
         return [];
     },
@@ -230,7 +233,7 @@ const BASE_HANDLER = {
             return rs;
         }
 
-        env.changeContext(os);
+        //env.changeContext(os);
         let LENGTH = Object.keys(os).length;
         let n = 0;
 
@@ -247,7 +250,7 @@ const BASE_HANDLER = {
             rs.push(input.get());
             env.restoreContext();
         });
-        env.restoreContext();
+        //env.restoreContext();
         return mcore.flat(rs);
     },
 
