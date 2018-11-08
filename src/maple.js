@@ -8,7 +8,8 @@ var maple_path = [];
  * TODO:
  *  用maple script扩展maple script的能力, maple命令stdin接受一个输入可以是yml/xml/..., 然后作为main obj
  *  参数的处理
- *
+ *  foreach循环的处理
+ *  section链接符的支持
  *
  *  1. 用array.some()改写正则匹配部分
  *  3. 性能统计: eval求值时间，次数，产生的字符数量等等
@@ -26,7 +27,7 @@ var maple_path = [];
  */
 
 
-const DEBUG = false;
+const DEBUG = true;
 
 function print(o, tag="") {
     if(o && DEBUG) {
@@ -192,16 +193,6 @@ const BASE_HANDLER = {
     foreach(env, section, params, input) {
         let rs = [];
 
-        function getsub(o, expr) {
-            if(!/[a-zA-Z_.]+$/.test(expr)) {
-                return null;
-            }
-            let chunk = expr.split(".");
-            let r = o;
-            chunk.forEach( c => r = r[c]);
-            return r;
-        }
-
         function getIterable() {
             // @foreach x:xs
             // @foreach xs -> @foreach $:xs
@@ -221,10 +212,7 @@ const BASE_HANDLER = {
                 expr  = expr  || forExpr;
             }
             // FIXME: 当对象为a.b这种形式的时候会无法获取
-            let os = getsub(env.context, expr);
-            if(!os) {
-                os = eval(expr);
-            }
+            let os = env.searchTarget(expr) || eval(expr);
             return {xname: xname, os: os};
         }
 
@@ -233,7 +221,6 @@ const BASE_HANDLER = {
             return rs;
         }
 
-        //env.changeContext(os);
         let LENGTH = Object.keys(os).length;
         let n = 0;
 
@@ -250,7 +237,6 @@ const BASE_HANDLER = {
             rs.push(input.get());
             env.restoreContext();
         });
-        //env.restoreContext();
         return mcore.flat(rs);
     },
 
@@ -371,6 +357,28 @@ class Maple {
         this.__context.stack.push(ctx); //println(this.__context, "+CTX");
     }
 
+    /**
+     * Search the target object in the current context
+     * NOTE: This method is a bit slow
+     */
+    searchTarget(name) {
+        let chunk = name.split(".");
+        let r = this.context;
+        if (!r)  {
+            return null;
+        }
+        // search child
+        for(let i=1; i<chunk.length; ++i) {
+            r = r[chunk[i]];
+        }
+        try {
+            r = mcore.exeval(this.expose(), `return ${name};`);
+        } catch (e) {
+            console.log(e);
+        }
+        return r;
+    }
+
     restoreContext() {
         this.__context.stack.pop(); //console.log(`[CHANGE CTX -] : CTX = ${JSON.stringify(this.context)} TYPE:${(typeof this.context)}`);
     }
@@ -473,4 +481,4 @@ function readline(file, cb) {
 module.exports = {
     run_maple,
     Maple
-}
+};
