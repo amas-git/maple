@@ -27,7 +27,7 @@ var maple_path = [];
  */
 
 
-const DEBUG = true;
+const DEBUG = false;
 
 function print(o, tag="") {
     if(o && DEBUG) {
@@ -62,7 +62,6 @@ class Section {
         }
 
         let r = mcore.exeval(env.expose(), `return ${$expr};`);
-        // console.log(`${$expr} -> ${r}`);
         return (r) ? true : false;
     }
 
@@ -349,7 +348,7 @@ class Maple {
         return _.last(this.__context.stack);
     }
 
-    changeContextToChild(key) {
+    _changeContextToChild(key) {
         this.changeContext(_.pick(this.context, key));
     }
 
@@ -374,7 +373,7 @@ class Maple {
         try {
             r = mcore.exeval(this.expose(), `return ${name};`);
         } catch (e) {
-            console.log(e);
+            console.error(e);
         }
         return r;
     }
