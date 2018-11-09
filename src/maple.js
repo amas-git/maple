@@ -260,7 +260,7 @@ const BASE_HANDLER = {
         return [];
     },
 
-    yaml(env, section, params, input) {
+    yml(env, section, params, input) {
         let name      = params[0] || "main";
         env.src[name] = mcore.objectFromYamlString(input.get().join("\n"));
         env.changeContext(env.src.main);
