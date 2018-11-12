@@ -2,7 +2,9 @@ const M = require('./M');
 const _ = require('lodash');
 const path = require('path');
 const mcore  = require('./mcore');
-var maple_path = [];
+var maple_path = (() => {
+    return process.env.MAPLE_PATH ? Mprocess.env.MAPLE_PATH.split(':') : [];
+})() ;
 
 /**
  * TODO:
@@ -443,7 +445,11 @@ class Maple {
     }
 }
 
-function run_maple(file) {
+function run_maple(script) {
+    const file  = mcore.search_mp(maple_path, script);
+    if(!file) {
+        return;
+    }
     const maple = new Maple(file);
     readline(file, (line, num) => {
         if(line == null) {

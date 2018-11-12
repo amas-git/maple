@@ -84,6 +84,16 @@ function mktree(xs, root=xs[0], level="level", child='nodes') {
     return root;
 }
 
+/**
+ * TODO:
+ * 1. name:tag
+ * 2. search name:tag
+ * 3. if dir, load main.mp
+ * 4. if file, load name:tag.mp founded
+ * @param maple_path
+ * @param name
+ * @returns {string}
+ */
 function object(maple_path, name) {
     let mpath   = [];
     let scriptd = path.dirname(name);
@@ -256,6 +266,54 @@ function parseMEXPR(text) {
     return ts;
 }
 
+
+/**
+ * n
+ * n.mp
+ * n/main.mp
+ *
+ * maple run n
+ * maple run n
+ * maple run n/m:1.2.1
+ * @param mp_path
+ */
+function search_mp(mp_path, target="main") {
+    let base = "";
+    if(target.startsWith("/")) {
+        base   = path.dirname(path.normalize(target));
+        target = path.basename(path.normalize(target));
+    }
+
+    if (target.endsWith('.mp')) {
+        target = target.replace(/.mp$/,'');
+    }
+
+
+    let r = "";
+    for(mpath of [base,...mp_path]) {
+        let mdir  = path.join(mpath,`${target}`);
+        let mfile = path.join(mpath,`${target}.mp`);
+
+        // target.mp
+        if(fs.existsSync(mfile)) {
+            r = mfile.toString();
+            break;
+        }
+
+        // target
+        if(fs.existsSync(mdir) && fs.lstatSync(mdir).isDirectory()) {
+            let main = path.join(mdir,"main.mp");
+            if(fs.existsSync(main) && fs.lstatSync(main).isFile()) {
+                r = main.toString();
+                break;
+            }
+        }
+    }
+    return r;
+}
+
+
+
 module.exports = {
     exeval,
     template,
@@ -271,5 +329,6 @@ module.exports = {
     objectFromYamlFile,
     objectFromYamlString,
     mcall,
-    parseMEXPR
+    parseMEXPR,
+    search_mp
 };
