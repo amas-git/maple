@@ -3,7 +3,7 @@ const _ = require('lodash');
 const path = require('path');
 const mcore  = require('./mcore');
 var maple_path = (() => {
-    return process.env.MAPLE_PATH ? Mprocess.env.MAPLE_PATH.split(':') : [];
+    return process.env.MAPLE_PATH ? process.env.MAPLE_PATH.split(':') : [];
 })() ;
 
 /**
