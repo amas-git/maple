@@ -375,7 +375,7 @@ class Maple {
         try {
             r = mcore.exeval(this.expose(), `return ${name};`);
         } catch (e) {
-            console.error(e);
+            //console.error(e);
         }
         return r;
     }

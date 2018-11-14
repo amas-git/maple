@@ -168,6 +168,11 @@ function template(env, template, enabled=true, thisArg = null) {
     return exeval(env.expose(), `return \`${$T}\`;`, thisArg);
 }
 
+/**
+ * FIXEME: 这个函数有可能导致内存耗尽
+ * @param input
+ * @returns {*[]}
+ */
 function flat(input){
     const stack = [...input];
     const res = [];
