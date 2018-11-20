@@ -268,6 +268,7 @@ function parseMEXPR(text) {
         ts.push(rs);
     }
 
+    console.log(ts);
     return ts;
 }
 
@@ -318,6 +319,69 @@ function search_mp(mp_path, target="main") {
 }
 
 
+
+function parse(text) {
+    const Q = {
+        "'":"'",
+        '"':'"',
+        '`':"`"
+    };
+
+    function WS(c) {
+        return /\s/.test(c);
+    }
+
+    function eatQuoted(text, start, target) {
+        if (!target) {
+            return {};
+        }
+        let skip = 0;
+        let r    = [];
+        let i    = start + 1;
+        let ch   = text[i];
+
+        while (ch !== target && i < text.length) {
+            r.push(ch);
+            skip++;
+            ch = text[++i];
+        }
+
+        // found quote
+        if(ch === target) {
+            skip++;
+        } else {
+            console.log(`NOT FOUND`);
+        }
+
+        return { quote:target, value:r.join(""), skip:skip};
+    }
+
+    let words = [];
+    let word  = [];
+    for (let i = 0; i < text.length; ++i) {
+        let ch = text[i];
+        if(WS(ch)) {
+            if(word.length > 0) {
+                words.push(word.join(""));
+                word = [];
+            }
+            continue;
+        }
+
+        let {quote, value, skip = 0} = eatQuoted(text, i, Q[ch]);
+        i += skip;
+        if(!skip) {
+            word.push(ch);
+        } else {
+            words.push(value);
+        }
+    }
+    if(word.length > 0) {
+        words.push(word.join(""));
+    }
+
+    console.log(words);
+}
 
 module.exports = {
     exeval,
