@@ -124,7 +124,7 @@ class Section {
             put(id, srcFn) {
                 this.fns[id]=srcFn;
             },
-
+            // 优先取管道, 实例化模板字符次之
             get(ids="pT") {
                 for (let id of ids) {
                     let fn = this.fns[id];
@@ -145,16 +145,19 @@ class Section {
             let [cn, ...params] = cmd;
             if (cn.startsWith('@')) {
                 cn = cn.slice(1);
+                // 1. call handler
                 let h = env.handlers[cn];
                 if (h) {
                     rs = h(env, this, params, input);
                 } else {
+                    // 2. call inner template function
                     let func = env.functions[cn];
                     if(func) {
                         // 模板函数
                         //rs = func(...params);
                         rs = func.bind(input)(...params);
                     } else {
+                        // 3. call externel commands
                         params.unshift(cn);
                         rs = env.handlers['exec'](env, this, params, input);
                     }
