@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-node-js 
+spec:
+  containers:
+      - name: pod-node-js
+        image: nginx
+        ports:
+          - containerPort: 80

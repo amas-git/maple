@@ -268,7 +268,6 @@ function parseMEXPR(text) {
         ts.push(rs);
     }
 
-    console.log(ts);
     return ts;
 }
 
