@@ -8,3 +8,8 @@
   - string
 
 - 取值范围
+
+
+name: @string|["bob","mick"]
+age: @int
+sex: [boy|girl]
