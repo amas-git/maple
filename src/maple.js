@@ -245,9 +245,9 @@ const BASE_HANDLER = {
     },
 
     src(env, section, params, input) {
-        let name = params[0] || "main";
-        env.src[name] = M(`module.exports={${input.get().join("")}}`);
-        env.changeContext(env.src.main);
+        let name = params[0];
+        let seed = M(`module.exports={${input.get().join("")}}`);
+        env.seed(seed, name);
         return [];
     },
 
@@ -259,22 +259,22 @@ const BASE_HANDLER = {
     },
 
     json(env, section, params, input) {
-        let name      = params[0] || "main";
-        env.src[name] = JSON.parse(input.get().join(""));
-        env.changeContext(env.src.main);
+        let name = params[0];
+        let seed = JSON.parse(input.get().join(""));
+        env.seed(seed,name);
         return [];
     },
 
     yml(env, section, params, input) {
-        let name      = params[0] || "main";
-        env.src[name] = mcore.objectFromYamlString(input.get().join("\n"));
-        env.changeContext(env.src.main);
+        let name = params[0];
+        let seed = mcore.objectFromYamlString(input.get().join("\n"));
+        env.seed(seed,name);
         return [];
     },
 
     srcfile(env, section, params, input) {
         let rs = input.get();
-        let name = params[0] || "main";
+        let name = params[0];
         let c = [];
 
         rs.forEach( f => {
@@ -283,8 +283,8 @@ const BASE_HANDLER = {
                 c.push(text);
             }
         });
-        env.src[name] = M(`module.exports={${c.join(",")}}`);
-        env.changeContext(env.src.main);
+        let seed = M(`module.exports={${c.join(",")}}`);
+        env.seed(seed,name);
         return [];
     },
 
@@ -324,10 +324,10 @@ const BASE_HANDLER = {
 };
 
 class Maple {
-    constructor(file) {
+    constructor(file, seed = undefined) {
         this.seq       = 1;
         this.file      = file;
-        this.src       = {};    // data source
+        this.src       = { main: seed };    // data source
         this.mod       = {};    // modules
         this.var       = {};    // 缓存状态
         this.root      = {};
@@ -349,12 +349,30 @@ class Maple {
         }
     }
 
+    seed(seed, name, force=false) {
+        if(_.isEmpty(name)) {
+            name = 'main';
+        }
+
+        if(this.src[name] && !force) {
+            return;
+        }
+
+        this.src[name] = seed;
+        this.setupContext(this.seed())
+    }
+
     get context() {
         return _.last(this.__context.stack);
     }
 
     _changeContextToChild(key) {
         this.changeContext(_.pick(this.context, key));
+    }
+
+    setupContext(ctx={}) {
+        this.__context.stack = [];
+        this.changeContext(ctx);
     }
 
     changeContext(ctx={}) {
@@ -448,12 +466,16 @@ class Maple {
     }
 }
 
-function run_maple(script) {
+/***
+ * @param script the script name
+ * @param seed the input object of script (we call it `seed`)
+ */
+function run_maple(script, seed) {
     const file  = mcore.search_mp(maple_path, script);
     if(!file) {
         return;
     }
-    const maple = new Maple(file);
+    const maple = new Maple(file, seed);
     readline(file, (line, num) => {
         if(line == null) {
             maple.tree();

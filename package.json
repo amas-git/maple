@@ -10,8 +10,9 @@
   "author": "amas <zhoujb.cn@gmail.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "lodash": "^4.17.11",
+    "commander": "^2.19.0",
+    "get-stdin-with-tty": "^5.0.2",
     "js-yaml": "^3.12.0",
-    "commander": "^2.19.0"
+    "lodash": "^4.17.11"
   }
 }

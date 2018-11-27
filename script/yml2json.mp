@@ -21,7 +21,7 @@ people:
     $type: string
   age:
     $type: number
-    $range: [1,100]
+    $range: 1,100
   sex:
     $type: enum
     $value: [F,M]

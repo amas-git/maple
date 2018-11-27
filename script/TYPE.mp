@@ -6,8 +6,18 @@
   - double
   - float
   - string
+  - phone
+  - mail
+  - url
+- 取值
+  - default
+  - [set]
+  - min
+  - max
+- 依赖于
 
-- 取值范围
+- 格式校验
+  - regex
 
 
 name: @string|["bob","mick"]
