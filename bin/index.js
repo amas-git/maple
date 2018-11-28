@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 const program = require('commander');
-const {run_maple} = require('../src/maple');
+const maple = require('../src/maple');
 const $package = require('../package');
 const fs = require('fs');
 const stdin = require('get-stdin-with-tty');
@@ -35,7 +35,15 @@ program.command('run')
         }
 
         let seed  = mcore.objectFromYamlString(input);
-        run_maple(script, seed);
+        maple.run_maple(script, seed);
+    });
+
+program.command('seed')
+    .alias('s')
+    .description('show seed of <script>')
+    .action((script) => {
+        let seed = maple.getSeed(script);
+        console.log(seed);
     });
 
 program.command('edit')

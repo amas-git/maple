@@ -525,11 +525,9 @@ function run_maple(script, seed) {
         return;
     }
 
-    console.log(getSeed(script));
-    //const maple = fromFile(file, seed);
-    //console.log(Maple.printrs(maple.eval()));
+    const maple = fromFile(file, seed);
+    console.log(Maple.printrs(maple.eval()));
 }
-
 
 function getSeed(script, seed=undefined) {
     const file  = mcore.search_mp(maple_path, script);
@@ -540,7 +538,6 @@ function getSeed(script, seed=undefined) {
     let seedsec = maple.seedsec;
     if(seedsec) {
         let {start, end, max} = seedsec.metainfo();
-        console.log(`%o`, seedsec.metainfo());
         return maple.source.slice(start, max+1).join('\n');
     }
     return "";
