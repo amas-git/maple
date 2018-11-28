@@ -20,6 +20,7 @@ program
 program.command('run')
     .alias('r')
     .option('-f,--file <path>','The input seed file, treat as yaml by default')
+    .option('-t,--test', 'Run in test mode, use seed in target script')
     .description('run <script>')
     .action(async (script, cmd) => {
 
@@ -27,20 +28,14 @@ program.command('run')
         if(cmd.file) {
             input = fs.readFileSync(cmd.file);
         } else {
-            stdin.tty = process.stdin.isTTY;
-            input = await stdin();
+            if(!cmd.test) {
+                stdin.tty = process.stdin.isTTY;
+                input = await stdin();
+            }
         }
 
         let seed  = mcore.objectFromYamlString(input);
         run_maple(script, seed);
-    });
-
-// input
-program.command('input')
-    .alias('i')
-    .description('input <script>')
-    .action((script) => {
-        console.log(`input -> ${script}`)
     });
 
 program.command('edit')

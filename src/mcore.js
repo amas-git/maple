@@ -382,6 +382,17 @@ function parse(text) {
     console.log(words);
 }
 
+function readline(file, cb) {
+    let num = 0;
+    require('readline').createInterface({
+        input: require('fs').createReadStream(file)
+    }).on('line', function (line) {
+        cb(line, num++);
+    }).on('close', () => {
+        cb(null, num++);
+    });
+}
+
 module.exports = {
     exeval,
     template,

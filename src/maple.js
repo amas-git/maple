@@ -56,6 +56,23 @@ class Section {
         this.pipes    = pipes; // 级联函数序列
         this.time     = 0;
         this.sep      = "\n";
+        this.meta     = {
+                           start:0 // start line number
+                          ,end:0   // end line number
+                        };
+    }
+
+    /**
+     * any section which contains @seed will treat as seed  section
+     * @returns {boolean}
+     */
+    isseed() {
+        for(let [cmd, ...params] of this.pipes) {
+            if (cmd === '@seed') {
+                return true;
+            }
+        }
+        return false;
     }
 
     test(env, $expr) {
@@ -169,13 +186,32 @@ class Section {
         return rs;
     }
 
+    // get the most last line of specify section
+    _meta_max() {
+        if(_.isEmpty(this.sections)) {
+            return this.meta.end;
+        }
+        let last = this.sections[this.sections.length - 1];
+        return last._meta_max();
+    }
+
+    metainfo() {
+        return {
+            start: this.meta.start,
+            end:   this.meta.end,
+            max:   this._meta_max()
+        };
+    }
+
+
     static ROOT() {
         return new Section(0, 2048);
     }
 
-    static fromMEXPR(id, text, level) {
+    static fromMEXPR(id, text, level, line) {
         let pipes = mcore.parseMEXPR(text);
         let section = new Section(id, level, pipes);
+        section.meta.start = line;
         return section;
     }
 }
@@ -288,6 +324,11 @@ const BASE_HANDLER = {
         return [];
     },
 
+    seed(env, section, params, input) {
+        let type = params[0] || 'yml';
+        return BASE_HANDLER[type](env, section, params, input);
+    },
+
     mod(env, section, params, input) {
         let content = input.get("pt");
         let name = params[0];
@@ -327,10 +368,12 @@ class Maple {
     constructor(file, seed = undefined) {
         this.seq       = 1;
         this.file      = file;
-        this.src       = { main: seed };    // data source
+        this.src       = {};    // data source
         this.mod       = {};    // modules
         this.var       = {};    // 缓存状态
         this.root      = {};
+        this.source    = [];    // source file
+        this.seedsec   = undefined;
         this.handlers  = BASE_HANDLER;
         this.sections  = [ Section.ROOT() ];
         this.functions = {};
@@ -347,6 +390,8 @@ class Maple {
         if(scriptd) {
             this.mpath.unshift(scriptd);
         }
+
+        this.seed(seed);
     }
 
     seed(seed, name, force=false) {
@@ -359,7 +404,7 @@ class Maple {
         }
 
         this.src[name] = seed;
-        this.setupContext(this.seed())
+        this.setupContext(seed);
     }
 
     get context() {
@@ -419,9 +464,12 @@ class Maple {
         return os;
     }
 
-    addSection(mexpr, level=0) {
-        let section = Section.fromMEXPR(this.seq++,mexpr, level);
+    addSection(mexpr, level=0, line=0) {
+        let section = Section.fromMEXPR(this.seq++,mexpr, level, line);
         this.sections.push(section);
+        if (section.isseed()) {
+            this.seedsec = section;
+        }
     }
 
     _current() {
@@ -439,8 +487,9 @@ class Maple {
         }
     }
 
-    addContent(content) {
+    addContent(content, line=0) {
         this._current().contents.push(content);
+        this._current().meta.end = line;
     }
 
     tree() {
@@ -475,41 +524,58 @@ function run_maple(script, seed) {
     if(!file) {
         return;
     }
-    const maple = new Maple(file, seed);
-    readline(file, (line, num) => {
-        if(line == null) {
-            maple.tree();
-            console.log(Maple.printrs(maple.eval()));
-            //maple.showTime();
-            return;
-        }
 
+    console.log(getSeed(script));
+    //const maple = fromFile(file, seed);
+    //console.log(Maple.printrs(maple.eval()));
+}
+
+
+function getSeed(script, seed=undefined) {
+    const file  = mcore.search_mp(maple_path, script);
+    if(!file) {
+        return;
+    }
+    const maple = fromFile(file, seed, true);
+    let seedsec = maple.seedsec;
+    if(seedsec) {
+        let {start, end, max} = seedsec.metainfo();
+        console.log(`%o`, seedsec.metainfo());
+        return maple.source.slice(start, max+1).join('\n');
+    }
+    return "";
+}
+
+
+function fromFile(file, seed, withSrc = false) {
+    const maple = new Maple(file, seed);
+    const text  = require('fs').readFileSync(file, 'utf8').toString();
+    const lines = text.split('\n');
+    if(withSrc) {
+        maple.source = lines;
+    }
+
+    let num = -1;
+    for(let line of lines) {
+        num+=1;
         let match;
         if(line.startsWith('#----')) {
             match = /^#([-]{4,2048})[|][\s]*(.*)/.exec(line);
             if (match) {
                 let [,level, mexpr] = match;
-                maple.addSection(mexpr, level.length);
-                return;
+                maple.addSection(mexpr, level.length, num);
+                continue;
             }
         }
-        maple.addContent(line);
-    });
-}
-
-function readline(file, cb) {
-    let num = 0;
-    require('readline').createInterface({
-        input: require('fs').createReadStream(file)
-    }).on('line', function (line) {
-        cb(line, num++);
-    }).on('close', () => {
-        cb(null, num++);
-    });
+        maple.addContent(line, num);
+    }
+    maple.tree();
+    return maple;
 }
 
 module.exports = {
     run_maple,
+    getSeed,
     Maple
 };
 
