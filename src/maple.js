@@ -546,7 +546,7 @@ function getSeed(script, seed=undefined) {
 
 function fromFile(file, seed, withSrc = false) {
     const maple = new Maple(file, seed);
-    const text  = require('fs').readFileSync(file, 'utf8').toString();
+    const text  = require('fs').readFileSync(file, 'utf8').toString().trim();
     const lines = text.split('\n');
     if(withSrc) {
         maple.source = lines;
