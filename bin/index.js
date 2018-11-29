@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 const program = require('commander');
-const maple = require('../src/maple');
+const M = require('../src/maple');
 const $package = require('../package');
 const fs = require('fs');
 const stdin = require('get-stdin-with-tty');
@@ -14,7 +14,10 @@ function error(message) {
 
 program
     .version($package.version)
-    .description($package.description);
+    .description($package.description)
+    .action(async (prog) => {
+        console.log(`hello`);
+    });
 
 // run
 program.command('run')
@@ -35,7 +38,7 @@ program.command('run')
         }
 
         let seed  = mcore.objectFromYamlString(input);
-        maple.run_maple(script, seed);
+        M.run_maple(script, seed);
     });
 
 program.command('seed')
@@ -55,4 +58,11 @@ program.command('edit')
         console.log(c.toString());
     });
 
-program.parse(process.argv);
+
+(async()=> {
+    stdin.tty = process.stdin.isTTY;
+    program.parse(process.argv);
+    let input = await stdin();
+    let maple = M.fromText(input);
+    console.log(maple.text());
+})();

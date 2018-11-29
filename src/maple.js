@@ -365,9 +365,8 @@ const BASE_HANDLER = {
 };
 
 class Maple {
-    constructor(file, seed = undefined) {
+    constructor(seed = undefined) {
         this.seq       = 1;
-        this.file      = file;
         this.src       = {};    // data source
         this.mod       = {};    // modules
         this.var       = {};    // 缓存状态
@@ -385,12 +384,6 @@ class Maple {
             $var       : this.var,
             $func      : this.functions
         };
-
-        let scriptd = path.dirname(file);
-        if(scriptd) {
-            this.mpath.unshift(scriptd);
-        }
-
         this.seed(seed);
     }
 
@@ -513,6 +506,10 @@ class Maple {
     static printrs(xs) {
         return mcore.flat(xs).join("\n");
     }
+
+    text() {
+       return Maple.printrs(this.eval());
+    }
 }
 
 /***
@@ -526,7 +523,7 @@ function run_maple(script, seed) {
     }
 
     const maple = fromFile(file, seed);
-    console.log(Maple.printrs(maple.eval()));
+    console.log(maple.text());
 }
 
 function getSeed(script, seed=undefined) {
@@ -545,8 +542,12 @@ function getSeed(script, seed=undefined) {
 
 
 function fromFile(file, seed, withSrc = false) {
-    const maple = new Maple(file, seed);
     const text  = require('fs').readFileSync(file, 'utf8').toString().trim();
+    return fromText(text)
+}
+
+function fromText(text, withSrc = false) {
+    const maple = new Maple();
     const lines = text.split('\n');
     if(withSrc) {
         maple.source = lines;
@@ -572,6 +573,8 @@ function fromFile(file, seed, withSrc = false) {
 
 module.exports = {
     run_maple,
+    fromFile,
+    fromText,
     getSeed,
     Maple
 };
