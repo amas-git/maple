@@ -20,7 +20,7 @@ program
 program.command('run')
     .alias('r')
     .option('-f,--file <path>','The input seed file, treat as yaml by default')
-    .option('-t,--test', 'Run in test mode, use seed in target script')
+    .option('-s,--noseed', 'Run in no seed mode')
     .description('run <script>')
     .action(async (script, cmd) => {
 
@@ -28,7 +28,7 @@ program.command('run')
         if(cmd.file) {
             input = fs.readFileSync(cmd.file);
         } else {
-            if(!cmd.test) {
+            if(!cmd.noseed) {
                 stdin.tty = process.stdin.isTTY;
                 input = await stdin();
             }
