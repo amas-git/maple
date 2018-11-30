@@ -367,7 +367,7 @@ const BASE_HANDLER = {
 class Maple {
     constructor(seed = undefined) {
         this.seq       = 1;
-        this.src       = {};    // data source
+        this.src       = {};    // the source file content
         this.mod       = {};    // modules
         this.var       = {};    // 缓存状态
         this.root      = {};
@@ -385,6 +385,13 @@ class Maple {
             $func      : this.functions
         };
         this.seed(seed);
+    }
+
+    /**
+     * Replace target section with new section
+     */
+    replace(setion) {
+
     }
 
     seed(seed, name, force=false) {
@@ -516,8 +523,8 @@ class Maple {
  * @param script the script name
  * @param seed the input object of script (we call it `seed`)
  */
-function run_maple(script, seed) {
-    const file  = mcore.search_mp(maple_path, script);
+function run_maple(name, seed) {
+    const file  = mcore.search_mp(maple_path, name);
     if(!file) {
         return;
     }
@@ -548,7 +555,7 @@ function fromFile(file, seed, withSrc = false) {
 
 function fromText(text, withSrc = false) {
     const maple = new Maple();
-    const lines = text.split('\n');
+    const lines = text.trim().split('\n');
     if(withSrc) {
         maple.source = lines;
     }

@@ -284,9 +284,14 @@ function parseMEXPR(text) {
  */
 function search_mp(mp_path, target="main") {
     let base = "";
+    let norm = path.normalize(target);
+    if(fs.existsSync(norm)){
+        return norm;
+    }
+
     if(target.startsWith("/")) {
-        base   = path.dirname(path.normalize(target));
-        target = path.basename(path.normalize(target));
+        base   = path.dirname(norm);
+        target = path.basename(norm);
     }
 
     if (target.endsWith('.mp')) {

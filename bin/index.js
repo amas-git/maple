@@ -14,10 +14,7 @@ function error(message) {
 
 program
     .version($package.version)
-    .description($package.description)
-    .action(async (prog) => {
-        console.log(`hello`);
-    });
+    .description($package.description);
 
 // run
 program.command('run')
@@ -66,3 +63,9 @@ program.command('edit')
     let maple = M.fromText(input);
     console.log(maple.text());
 })();
+
+/*
+ maple run -s seed.mp xxx
+
+ cat seed | maple run xxx
+ */
