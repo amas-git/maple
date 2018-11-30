@@ -14,28 +14,26 @@ function error(message) {
 
 program
     .version($package.version)
-    .description($package.description);
+    .description($package.description)
+    .option('-s,--seed <path>', 'Run with specify seed')
+    .option('-S,--noseed',      'Run without seed');
 
 // run
 program.command('run')
     .alias('r')
-    .option('-f,--file <path>','The input seed file, treat as yaml by default')
-    .option('-s,--noseed', 'Run in no seed mode')
     .description('run <script>')
     .action(async (script, cmd) => {
-
-        let input = "";
-        if(cmd.file) {
-            input = fs.readFileSync(cmd.file);
-        } else {
-            if(!cmd.noseed) {
-                stdin.tty = process.stdin.isTTY;
-                input = await stdin();
+        let seed = undefined;
+        if(!program.noseed) {
+            if (program.seed) {
+                seed = M.fromFile(program.seed);
+            } else {
+                seed = M.fromText(await stdin());
             }
         }
 
-        let seed  = mcore.objectFromYamlString(input);
-        M.run_maple(script, seed);
+        let target = M.searchMaple(script);
+        console.log(`${target}`);
     });
 
 program.command('seed')
@@ -55,17 +53,35 @@ program.command('edit')
         console.log(c.toString());
     });
 
-
 (async()=> {
     stdin.tty = process.stdin.isTTY;
     program.parse(process.argv);
-    let input = await stdin();
-    let maple = M.fromText(input);
-    console.log(maple.text());
+    // read the seed
+    if(program.seed) {
+
+        //console.log(`${program.seed}`)
+    }
+    // let input = await stdin();
+    // let maple = M.fromText(input);
+    // console.log(maple.text());
 })();
 
 /*
  maple run -s seed.mp xxx
 
  cat seed | maple run xxx
+
+
+        let input = "";
+        if(cmd.file) {
+            input = fs.readFileSync(cmd.file);
+        } else {
+            if(!cmd.noseed) {
+                stdin.tty = process.stdin.isTTY;
+                input = await stdin();
+            }
+        }
+
+        let seed  = mcore.objectFromYamlString(input);
+        M.run_maple(script, seed);
  */

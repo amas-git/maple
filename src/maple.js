@@ -583,6 +583,7 @@ module.exports = {
     fromFile,
     fromText,
     getSeed,
+    searchMaple: (name) => mcore.search_mp(maple_path, name),
     Maple
 };
 

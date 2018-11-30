@@ -283,6 +283,10 @@ function parseMEXPR(text) {
  * @param mp_path
  */
 function search_mp(mp_path, target="main") {
+    if(_.isEmpty(mp_path)) {
+        return "";
+    }
+
     let base = "";
     let norm = path.normalize(target);
     if(fs.existsSync(norm)){
