@@ -24,7 +24,7 @@ program.command('run')
     .description('run <script>')
     .action(async (script, cmd) => {
         let seed = undefined;
-        if(!program.noseed) {
+        if (!program.noseed) {
             if (program.seed) {
                 seed = M.fromFile(program.seed);
             } else {
@@ -33,7 +33,11 @@ program.command('run')
         }
 
         let target = M.searchMaple(script);
-        console.log(`${target}`);
+        if (target) {
+            let maple = M.fromFile(target, true);
+            maple.seed(seed);
+            console.log(maple.text());
+        }
     });
 
 program.command('seed')
@@ -48,9 +52,7 @@ program.command('edit')
     .alias('e')
     .description('edit <script> file')
     .action((script) => {
-
-        let c = fs.readFileSync(process.stdin.fd);
-        console.log(c.toString());
+        console.log(M.searchMaple(script));
     });
 
 (async()=> {

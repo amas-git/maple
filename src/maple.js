@@ -75,6 +75,20 @@ class Section {
         return false;
     }
 
+    /**
+     * assign a section to current section
+     * 1. the section will be the child of current one
+     * @param section
+     */
+    replace(section) {
+        if (!section) {
+            return;
+        }
+        this.contents = [];
+        this.sections = section.sections;
+        // TODO: adjust the level value
+    }
+
     test(env, $expr) {
         if(_.isEmpty($expr)) {
             return true;
@@ -282,8 +296,8 @@ const BASE_HANDLER = {
 
     src(env, section, params, input) {
         let name = params[0];
-        let seed = M(`module.exports={${input.get().join("")}}`);
-        env.seed(seed, name);
+        let obj  = M(`module.exports={${input.get().join("")}}`);
+        env.addsrc(obj, name);
         return [];
     },
 
@@ -296,15 +310,15 @@ const BASE_HANDLER = {
 
     json(env, section, params, input) {
         let name = params[0];
-        let seed = JSON.parse(input.get().join(""));
-        env.seed(seed,name);
+        let obj  = JSON.parse(input.get().join(""));
+        env.addsrc(obj, name);
         return [];
     },
 
     yml(env, section, params, input) {
         let name = params[0];
-        let seed = mcore.objectFromYamlString(input.get().join("\n"));
-        env.seed(seed,name);
+        let obj  = mcore.objectFromYamlString(input.get().join("\n"));
+        env.addsrc(obj, name);
         return [];
     },
 
@@ -319,8 +333,8 @@ const BASE_HANDLER = {
                 c.push(text);
             }
         });
-        let seed = M(`module.exports={${c.join(",")}}`);
-        env.seed(seed,name);
+        let obj = M(`module.exports={${c.join(",")}}`);
+        env.addsrc(obj, name);
         return [];
     },
 
@@ -365,7 +379,7 @@ const BASE_HANDLER = {
 };
 
 class Maple {
-    constructor(seed = undefined) {
+    constructor() {
         this.seq       = 1;
         this.src       = {};    // the source file content
         this.mod       = {};    // modules
@@ -384,27 +398,33 @@ class Maple {
             $var       : this.var,
             $func      : this.functions
         };
-        this.seed(seed);
     }
 
     /**
-     * Replace target section with new section
+     * Set seed section
+     * @param seed
      */
-    replace(setion) {
-
-    }
-
-    seed(seed, name, force=false) {
-        if(_.isEmpty(name)) {
-            name = 'main';
-        }
-
-        if(this.src[name] && !force) {
+    seed(seed) {
+        if (!seed instanceof Section) {
             return;
         }
 
-        this.src[name] = seed;
-        this.setupContext(seed);
+        // no seed section, just put ahead
+        if (!this.seedsec) {
+            this.root.sections.unshift(seed);
+            return;
+        }
+
+        this.seedsec.replace(seed);
+    }
+
+    addsrc(object, name='main') {
+        if (!name) {
+            name = 'main';
+        }
+
+        this.src[name] = object;
+        this.setupContext(object);
     }
 
     get context() {
