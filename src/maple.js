@@ -360,7 +360,7 @@ const BASE_HANDLER = {
     },
 
     join(env, section, params, input) {
-        return [input.get().join('\n').split('\n').join(params[0])];
+        return [input.get().join(params[0])];
     },
 
     exec(env, section, params, input) {
