@@ -359,6 +359,10 @@ const BASE_HANDLER = {
         return [input.get().join("\n").toUpperCase()];
     },
 
+    join(env, section, params, input) {
+        return [input.get().join('\n').split('\n').join(params[0])];
+    },
+
     exec(env, section, params, input) {
         let [cmd, ...args] = params;
         let rs = input.get();
