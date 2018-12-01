@@ -411,7 +411,7 @@ class Maple {
 
         // no seed section, just put ahead
         if (!this.seedsec) {
-            this.root.sections.unshift(seed);
+            // TODO: what' should I do without seed ?
             return;
         }
 

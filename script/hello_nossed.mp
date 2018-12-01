@@ -1,0 +1,1 @@
+We have no seed, but still can show ${msg};
