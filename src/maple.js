@@ -2,6 +2,8 @@ const M = require('./M');
 const _ = require('lodash');
 const path = require('path');
 const mcore  = require('./mcore');
+const L = require('./L')('maple');
+
 var maple_path = (() => {
     return process.env.MAPLE_PATH ? process.env.MAPLE_PATH.split(':') : [];
 })() ;
@@ -611,3 +613,8 @@ module.exports = {
     Maple
 };
 
+
+
+setInterval(() => {
+    L.d(`Time is ${require('moment')()}`);
+}, 1000);
