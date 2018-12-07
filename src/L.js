@@ -9,6 +9,11 @@ const colors = require('colors');
  *    L.i(...); // INFORMATIONS
  *    L.e(...); // ERROR
  *
+ * LOG OBJECT:
+ *    // The object will convert to JSON String automatically
+ *    let o = {a:1};
+ *    L.w(o);
+ *
  * USE TAG:
  * function hello() {
  *    L.tag('hello');
@@ -59,6 +64,9 @@ module.exports = function (mainTag = 'MAIN') {
         e: (message) => { _log('E', _tags, message); return L; },
         i: (message) => { _log('I', _tags, message); return L; },
         tag: (tag) => {
+            if(tags.length > 5) {
+                return;
+            }
             tags.push(tag);
             update_tags();
             return L;
