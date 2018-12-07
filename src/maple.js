@@ -612,9 +612,3 @@ module.exports = {
     searchMaple: (name) => mcore.search_mp(maple_path, name),
     Maple
 };
-
-
-
-setInterval(() => {
-    L.d(`Time is ${require('moment')()}`);
-}, 1000);
