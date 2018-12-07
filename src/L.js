@@ -45,8 +45,8 @@ function _log(level = 'D', tag, text) {
     }
 }
 
-module.exports = function (tag = 'MAIN') {
-    let  tags = [tag];
+module.exports = function (mainTag = 'MAIN') {
+    let  tags = [mainTag];
     let _tags = '';
 
     function update_tags() {
