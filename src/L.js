@@ -40,10 +40,14 @@ const options = {
 };
 
 function _log(level = 'D', tag, text) {
+    if (text == undefined || text == null) {
+        text = "";
+    }
+
     if (typeof text === 'object') {
         text = JSON.stringify(text);
     }
-    const xs = text.split('\n');
+    const xs = text.toString().split('\n');
     const time = moment().format(options.timestamp);
     for (let x of xs) {
         options.printer(`[${level}] ${time} ${tag} : ${x}`[options.color(level)]);

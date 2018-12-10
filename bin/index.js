@@ -44,7 +44,7 @@ program.command('seed')
     .alias('s')
     .description('show seed of <script>')
     .action((script) => {
-        let seed = maple.getSeed(script);
+        let seed = M.getSeed(script);
         console.log(seed);
     });
 

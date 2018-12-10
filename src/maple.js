@@ -65,28 +65,17 @@ class Section {
     }
 
     /**
-     * any section which contains @seed will treat as seed  section
-     * @returns {boolean}
-     */
-    isseed() {
-        for(let [cmd, ...params] of this.pipes) {
-            if (cmd === '@seed') {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Test the section contains specify command
      * @param name
      * @returns {boolean}
      */
     hasCommand(name) {
-        let s = this.pipes.find(([cmd, ...params]) => {
-            return name === cmd;
-        });
-        return !!s;
+        for (let [cmd, ...params] of this.pipes) {
+            if (cmd === name) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -437,6 +426,28 @@ class Maple {
         this.seedsec.replace(seed);
     }
 
+    /**
+     * Get the source code of specify setion
+     * @param id
+     */
+    getSource(id) {
+        let s = this.sections[id];
+        if (s) {
+            let {start, end, max} = s.metainfo();
+            return this.source.slice(start, max+1).join('\n');
+        }
+        return "";
+    }
+
+    getSectionByCommand(cmd) {
+        return this.sections.find((s) => { return s.hasCommand(cmd); } );
+    }
+
+    getSourceByCommand(cmd) {
+        let section = this.getSectionByCommand(cmd);
+        return section ? this.getSource(section.id) : undefined;
+    }
+
     get context() {
         return _.last(this.__context.stack);
     }
@@ -478,7 +489,7 @@ class Maple {
     }
 
     restoreContext() {
-        this.__context.stack.pop(); //console.log(`[CHANGE CTX -] : CTX = ${JSON.stringify(this.context)} TYPE:${(typeof this.context)}`);
+        this.__context.stack.pop();
     }
 
     expose() {
@@ -498,9 +509,6 @@ class Maple {
     addSection(mexpr, level=0, line=0) {
         let section = Section.fromMEXPR(this.seq++,mexpr, level, line);
         this.sections.push(section);
-        if (section.isseed()) {
-            this.seedsec = section;
-        }
     }
 
     _current() {
@@ -570,18 +578,13 @@ function getSeed(script, seed=undefined) {
         return;
     }
     const maple = fromFile(file, seed, true);
-    let seedsec = maple.seedsec;
-    if(seedsec) {
-        let {start, end, max} = seedsec.metainfo();
-        return maple.source.slice(start, max+1).join('\n');
-    }
-    return "";
+    return maple.getSourceByCommand('@seed');
 }
 
 
 function fromFile(file, seed, withSrc = false) {
     const text  = require('fs').readFileSync(file, 'utf8').toString().trim();
-    return fromText(text)
+    return fromText(text, withSrc)
 }
 
 function fromText(text, withSrc = false) {
