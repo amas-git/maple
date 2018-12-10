@@ -78,6 +78,19 @@ class Section {
     }
 
     /**
+     * Test the section contains specify command
+     * @param name
+     * @returns {boolean}
+     */
+    hasCommand(name) {
+        let s = this.pipes.find(([cmd, ...params]) => {
+            return name === cmd;
+        });
+        return !!s;
+    }
+
+    /**
+     *
      * assign a section to current section
      * 1. the section will be the child of current one
      * @param section
@@ -299,7 +312,7 @@ const BASE_HANDLER = {
     src(env, section, params, input) {
         let name = params[0];
         let obj  = M(`module.exports={${input.get().join("")}}`);
-        env.addsrc(obj, name);
+        env.setupContext(obj, name);
         return [];
     },
 
@@ -313,14 +326,14 @@ const BASE_HANDLER = {
     json(env, section, params, input) {
         let name = params[0];
         let obj  = JSON.parse(input.get().join(""));
-        env.addsrc(obj, name);
+        env.setupContext(obj, name);
         return [];
     },
 
     yml(env, section, params, input) {
         let name = params[0];
         let obj  = mcore.objectFromYamlString(input.get().join("\n"));
-        env.addsrc(obj, name);
+        env.setupContext(obj, name);
         return [];
     },
 
@@ -336,7 +349,7 @@ const BASE_HANDLER = {
             }
         });
         let obj = M(`module.exports={${c.join(",")}}`);
-        env.addsrc(obj, name);
+        env.setupContext(obj, name);
         return [];
     },
 
@@ -424,15 +437,6 @@ class Maple {
         this.seedsec.replace(seed);
     }
 
-    addsrc(object, name='main') {
-        if (!name) {
-            name = 'main';
-        }
-
-        this.src[name] = object;
-        this.setupContext(object);
-    }
-
     get context() {
         return _.last(this.__context.stack);
     }
@@ -441,7 +445,8 @@ class Maple {
         this.changeContext(_.pick(this.context, key));
     }
 
-    setupContext(ctx={}) {
+    setupContext(ctx={}, name='main') {
+        this.src[name] = ctx;
         this.__context.stack = [];
         this.changeContext(ctx);
     }
