@@ -35,7 +35,7 @@ program.command('run')
         let target = M.searchMaple(script);
         if (target) {
             let maple = M.fromFile(target, true);
-            maple.seed(seed);
+            maple.replaceSeed(seed);
             console.log(maple.text());
         }
     });

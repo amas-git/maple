@@ -394,7 +394,6 @@ class Maple {
         this.var       = {};    // 缓存状态
         this.root      = {};
         this.source    = [];    // source file
-        this.seedsec   = undefined;
         this.handlers  = BASE_HANDLER;
         this.sections  = [ Section.ROOT() ];
         this.functions = {};
@@ -409,21 +408,20 @@ class Maple {
     }
 
     /**
-     * Set seed section
+     * Set replaceSeed section
      * @param seed
      */
-    seed(seed) {
+    replaceSeed(seed) {
         if (!seed instanceof Section) {
+            L.e(`The seed must be an instance of Section`);
             return;
         }
 
-        // no seed section, just put ahead
-        if (!this.seedsec) {
-            // TODO: what' should I do without seed ?
-            return;
+        // no replaceSeed section, just put ahead
+        let s = this.getSourceByCommand('@replaceSeed');
+        if(s) {
+            this.s.replace(seed);
         }
-
-        this.seedsec.replace(seed);
     }
 
     /**
@@ -560,7 +558,7 @@ class Maple {
 
 /***
  * @param script the script name
- * @param seed the input object of script (we call it `seed`)
+ * @param seed the input object of script (we call it `replaceSeed`)
  */
 function run_maple(name, seed) {
     const file  = mcore.search_mp(maple_path, name);
@@ -578,7 +576,7 @@ function getSeed(script, seed=undefined) {
         return;
     }
     const maple = fromFile(file, seed, true);
-    return maple.getSourceByCommand('@seed');
+    return maple.getSourceByCommand('@replaceSeed');
 }
 
 
