@@ -19,30 +19,16 @@ module.exports = function requireFromString(code, filename, opts) {
         throw new Error('code must be a string, not ' + typeof code);
     }
 
-    var paths = Module._nodeModulePaths(path.dirname(filename));
+    const paths = Module._nodeModulePaths(path.dirname(filename));
 
-    var parent = module.parent;
-    var m = new Module(filename, parent);
+    const parent = module.parent;
+    const m = new Module(filename, parent);
     m.filename = filename;
     m.paths = [].concat(opts.prependPaths).concat(paths).concat(opts.appendPaths);
     m._compile(code, filename);
 
-    var exports = m.exports;
+    const exports = m.exports;
     parent && parent.children && parent.children.splice(parent.children.indexOf(m), 1);
 
     return exports;
 };
-
-
-// function error(text) {
-//     console.error(text);
-// }
-//
-// function E(template) {
-//     return eval('`' + template.replace(/`/g, '\\`') + '`');
-// }
-//
-// function isIterable(o) {
-//     return o == null ? false : typeof o[Symbol.iterator] === 'function';
-// }
-//

@@ -10,6 +10,7 @@ var maple_path = (() => {
 
 /**
  * TODO:
+ *  maple
  *  用maple script扩展maple script的能力, maple命令stdin接受一个输入可以是yml/xml/..., 然后作为main obj
  *  参数的处理
  *  foreach循环的处理
@@ -425,10 +426,10 @@ class Maple {
     }
 
     /**
-     * Get the source code of specify setion
+     * Get the source code of specify section
      * @param id
      */
-    getSource(id) {
+    getSourceBySectionId(id) {
         let s = this.sections[id];
         if (s) {
             let {start, end, max} = s.metainfo();
@@ -443,7 +444,7 @@ class Maple {
 
     getSourceByCommand(cmd) {
         let section = this.getSectionByCommand(cmd);
-        return section ? this.getSource(section.id) : undefined;
+        return section ? this.getSourceBySectionId(section.id) : undefined;
     }
 
     get context() {
@@ -576,7 +577,7 @@ function getSeed(script, seed=undefined) {
         return;
     }
     const maple = fromFile(file, seed, true);
-    return maple.getSourceByCommand('@replaceSeed');
+    return maple.getSourceByCommand('@seed');
 }
 
 
