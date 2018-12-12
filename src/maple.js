@@ -9,14 +9,15 @@ var maple_path = (() => {
 })() ;
 
 /**
+ * RULE:
+ *  maple是不断进化的代码, 在进化过程中努力保持自身的极简
+ *  结果正确 != 过程正确
  * TODO:
- *  maple
  *  用maple script扩展maple script的能力, maple命令stdin接受一个输入可以是yml/xml/..., 然后作为main obj
  *  参数的处理
  *  foreach循环的处理
  *  section链接符的支持
  *
- *  1. 用array.some()改写正则匹配部分
  *  3. 性能统计: eval求值时间，次数，产生的字符数量等等
  *  4. 实现pipe
  * HISTORY:
@@ -28,7 +29,7 @@ var maple_path = (() => {
  *  8. **可以把section编译成js函数
  *  FIXME:
  *
- *  结果正确 != 过程正确
+ *
  */
 
 
@@ -327,6 +328,25 @@ const BASE_HANDLER = {
         return [];
     },
 
+    run(env, section, params, input) {
+        let rs = [];
+        let obj  = mcore.objectFromYamlString(input.get().join("\n"));
+        L.tag('@run').d(`with ${params} ${JSON.stringify(obj)}`);
+        // FIXEME: 如果调用自己改怎么办?
+        for (let name of params) {
+            let mp = Maple.searchMaple(name);
+            if (!mp) {
+                L.e(`@run the ${name} can't find`);
+                continue;
+            }
+            let maple = Maple.fromFile(mp);
+            maple.setupContext(obj);
+            rs.push(maple.text());
+        }
+        L.reset();
+        return rs;
+    },
+
     srcfile(env, section, params, input) {
         let rs = input.get();
         let name = params[0];
@@ -555,67 +575,68 @@ class Maple {
     text() {
        return Maple.printrs(this.eval());
     }
-}
 
-/***
- * @param script the script name
- * @param seed the input object of script (we call it `replaceSeed`)
- */
-function run_maple(name, seed) {
-    const file  = mcore.search_mp(maple_path, name);
-    if(!file) {
-        return;
+
+    static run(name) {
+       const mp = mcore.search_mp(maple_path, name);
+       if(!mp) {
+           L.w(`NOT found '${name}' maple script`);
+       }
+       const maple = Maple.fromFile(mp);
+       return maple.text();
     }
 
-    const maple = fromFile(file, seed);
-    console.log(maple.text());
-}
 
-function getSeed(script, seed=undefined) {
-    const file  = mcore.search_mp(maple_path, script);
-    if(!file) {
-        return;
-    }
-    const maple = fromFile(file, seed, true);
-    return maple.getSourceByCommand('@seed');
-}
-
-
-function fromFile(file, seed, withSrc = false) {
-    const text  = require('fs').readFileSync(file, 'utf8').toString().trim();
-    return fromText(text, withSrc)
-}
-
-function fromText(text, withSrc = false) {
-    const maple = new Maple();
-    const lines = text.trim().split('\n');
-    if(withSrc) {
-        maple.source = lines;
-    }
-
-    let num = -1;
-    for(let line of lines) {
-        num+=1;
-        let match;
-        if(line.startsWith('#----')) {
-            match = /^#([-]{4,2048})[|][\s]*(.*)/.exec(line);
-            if (match) {
-                let [,level, mexpr] = match;
-                maple.addSection(mexpr, level.length, num);
-                continue;
-            }
+    static getSeed(script, seed=undefined) {
+        const file  = mcore.search_mp(maple_path, script);
+        if(!file) {
+            return;
         }
-        maple.addContent(line, num);
+        const maple = fromFile(file, seed, true);
+        return maple.getSourceByCommand('@seed');
     }
-    maple.tree();
-    return maple;
+
+
+    static fromFile(file, withSrc = false) {
+        L.tag('fromFile').d(`run ${file}`).reset();
+        const text  = require('fs').readFileSync(file, 'utf8').toString().trim();
+        return Maple.fromText(text, withSrc)
+    }
+
+    static fromText(text, withSrc = false) {
+        if (_.isEmpty(text)) {
+            return null;
+        }
+
+        const maple = new Maple();
+        const lines = text.trim().split('\n');
+        if(withSrc) {
+            maple.source = lines;
+        }
+
+        let num = -1;
+        for(let line of lines) {
+            num+=1;
+            let match;
+            if(line.startsWith('#----')) {
+                match = /^#([-]{4,2048})[|][\s]*(.*)/.exec(line);
+                if (match) {
+                    let [,level, mexpr] = match;
+                    maple.addSection(mexpr, level.length, num);
+                    continue;
+                }
+            }
+            maple.addContent(line, num);
+        }
+        maple.tree();
+        return maple;
+    }
+
+    static searchMaple(name) {
+        return mcore.search_mp(maple_path, name);
+    }
 }
 
-module.exports = {
-    run_maple,
-    fromFile,
-    fromText,
-    getSeed,
-    searchMaple: (name) => mcore.search_mp(maple_path, name),
-    Maple
-};
+
+
+module.exports = Maple;
