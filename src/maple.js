@@ -9,9 +9,11 @@ var maple_path = (() => {
 })() ;
 
 /**
+ *
  * RULE:
- *  maple是不断进化的代码, 在进化过程中努力保持自身的极简
+ *  不断去掉非必须
  *  结果正确 != 过程正确
+ *  Repeat yourself more
  * TODO:
  *  用maple script扩展maple script的能力, maple命令stdin接受一个输入可以是yml/xml/..., 然后作为main obj
  *  参数的处理
@@ -34,22 +36,6 @@ var maple_path = (() => {
 
 
 const DEBUG = false;
-
-function print(o, tag="") {
-    if(o && DEBUG) {
-        let c = JSON.stringify(o, null, 2).split("\n");
-        c = c.map((s) =>{ return `[${tag}] : ${s}`; } );
-        console.error(c.join("\n"));
-    }
-}
-
-function println(o, tag="") {
-    if(o && DEBUG) {
-        let c = JSON.stringify(o).split("\n");
-        c = c.map((s) =>{ return `[${tag}] : ${s}`; } );
-        console.error(c.join("\n"));
-    }
-}
 
 class Section {
     constructor(id, level, pipes=[["@part"]]) {
@@ -557,8 +543,6 @@ class Maple {
 
     eval() {
         let rs = this.root.eval(this);
-        print("==============================");
-        print(rs, "RS");
         return rs;
     }
 
@@ -636,7 +620,5 @@ class Maple {
         return mcore.search_mp(maple_path, name);
     }
 }
-
-
 
 module.exports = Maple;

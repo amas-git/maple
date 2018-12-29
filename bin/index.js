@@ -47,3 +47,4 @@ program.command('edit')
     stdin.tty = process.stdin.isTTY;
     program.parse(process.argv);
 })();
+

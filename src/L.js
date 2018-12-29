@@ -63,10 +63,10 @@ module.exports = function (mainTag = 'MAIN') {
     }
 
     let L = {
-        w: (message) => { _log('W', _tags, message); return L; },
-        d: (message) => { _log('D', _tags, message); return L; },
-        e: (message) => { _log('E', _tags, message); return L; },
-        i: (message) => { _log('I', _tags, message); return L; },
+        w: (message) => { if(L.enabled) _log('W', _tags, message); return L; },
+        d: (message) => { if(L.enabled) _log('D', _tags, message); return L; },
+        e: (message) => { if(L.enabled) _log('E', _tags, message); return L; },
+        i: (message) => { if(L.enabled) _log('I', _tags, message); return L; },
         tag: (tag) => {
             if(tags.length > 5) {
                 return;
@@ -78,7 +78,8 @@ module.exports = function (mainTag = 'MAIN') {
         reset() {
             tags = [tags[0]];
             update_tags();
-        }
+        },
+        enabled: true
     };
     return L;
 };
