@@ -10,11 +10,15 @@
   "author": "amas <zhoujb.cn@gmail.com>",
   "license": "Apache-2.0",
   "dependencies": {
+    "axios": "^0.18.0",
+    "colors": "^1.3.2",
     "commander": "^2.19.0",
     "get-stdin-with-tty": "^5.0.2",
-    "js-yaml": "^3.12.0",
+    "js-yaml": "^3.13.0",
     "lodash": "^4.17.11",
-    "moment": "^2.22.2",
-    "colors": "^1.3.2"
+    "moment": "^2.22.2"
+  },
+  "scripts": {
+    "test": "mocha"
   }
 }

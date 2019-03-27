@@ -25,7 +25,7 @@ program.command('run')
     .description('run <script>')
     .action(async (script, cmd) => {
         let maple = _.isString(script) ? MP.fromFile(MP.searchMaple(script)) : MP.fromText(await stdin());
-        console.log(maple.text());
+        console.log(await maple.text());
     });
 
 program.command('seed')
@@ -47,4 +47,3 @@ program.command('edit')
     stdin.tty = process.stdin.isTTY;
     program.parse(process.argv);
 })();
-

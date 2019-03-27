@@ -138,18 +138,21 @@ function convertId(keys=[]) {
     });
 }
 
+const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+
 /**
  * @param os the context objects
  * @param code the code to be eval
  * @param thisArg this object
  * @returns {*} the eval result
  */
-function mcall(os, code, thisArg = null) {
-    return new Function(convertId(Object.keys(os)), code).apply(thisArg, Object.values(os));
+async function mcall(os, code, thisArg = null) {
+    let r = new AsyncFunction(convertId(Object.keys(os)), code).apply(thisArg, Object.values(os));
+    return r;
 }
 
-function exeval($os, $code, thisArg = null) {
-    return mcall(joinObjects($os), `${$code}`, thisArg);
+async function exeval($os, $code, thisArg = null) {
+    return await mcall(joinObjects($os), `${$code}`, thisArg);
 }
 
 /***
@@ -160,12 +163,12 @@ function exeval($os, $code, thisArg = null) {
  * @param thisArg bind thisArg object when eval template
  * @returns {*} the eval result
  */
-function template(env, template, enabled=true, thisArg = null) {
+async function template(env, template, enabled=true, thisArg = null) {
     if(!enabled) {
         return template;
     }
     let $T       = template.replace(/`/g, '\\`');
-    return exeval(env.expose(), `return \`${$T}\`;`, thisArg);
+    return await exeval(env.expose(), `return \`${$T}\`;`, thisArg);
 }
 
 /**
