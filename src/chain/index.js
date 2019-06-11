@@ -11,9 +11,17 @@ function load(target) {
     return xs;
 }
 
+
+function run_chain(chain, ...params) {
+    let status = null;
+    for (let {_, mod} of chain) {
+        status = mod(status, ...params);
+    }
+}
+
+
 const chain = load('./src/chain');
 
-for (let {_, mod} of chain) {
-    mod(1,2);
-}
+
+run_chain(chain, 1,2,3);
 
