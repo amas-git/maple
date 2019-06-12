@@ -29,6 +29,5 @@ module.exports = function requireFromString(code, filename, opts) {
 
     const exports = m.exports;
     parent && parent.children && parent.children.splice(parent.children.indexOf(m), 1);
-
     return exports;
 };
