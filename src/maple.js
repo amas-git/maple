@@ -38,14 +38,14 @@ var maple_path = (() => {
 const DEBUG = false;
 
 class Section {
-  constructor(id, level, pipes = [["@part"]]) {
+  constructor(id, level, pipes = [['@part']]) {
     this.id = id;
     this.level = level;
     this.contents = [];
     this.sections = [];
     this.pipes = pipes; // 级联函数序列
     this.time = 0;
-    this.sep = "\n";
+    this.sep = '\n';
     this.meta = {
       start: 0 // start line number
       , end: 0   // end line number
