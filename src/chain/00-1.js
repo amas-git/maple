@@ -1,3 +1,9 @@
-module.exports = function (a,b) {
-    console.log(`${__filename} : ${JSON.stringify(arguments)} ${a+b}`);
+async function process(event) {
+
+}
+
+module.exports = {
+    name: 'rule1',
+    type: ['ev_x1', 'ev_y1'],
+    process
 };
