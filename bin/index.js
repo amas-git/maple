@@ -15,7 +15,7 @@ function error(message) {
 
 program
     .version($package.version)
-    .description($package.description);
+    .description(`version: ${$package.version}\n${$package.description}`);
 //    .option('-s,--seed <path>', 'Run with specify seed')
 //    .option('-S,--noseed',      'Run without seed');
 

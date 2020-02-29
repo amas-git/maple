@@ -4,6 +4,7 @@ const path = require('path');
 const _ = require('lodash');
 const proc = require('process');
 const yaml = require('js-yaml');
+const vm = require('vm');
 
 const type = function(obj) {
     return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
