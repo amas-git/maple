@@ -596,6 +596,9 @@ class Maple {
 
   static fromFile(file, withSrc = false) {
     L.tag('fromFile').d(`run ${file}`).reset();
+    if (_.isEmpty(file)) {
+      return undefined;
+    }
     const text = require('fs').readFileSync(file, 'utf8').toString().trim();
     return Maple.fromText(text, withSrc)
   }

@@ -25,6 +25,10 @@ program.command('run')
     .description('run <script>')
     .action(async (script, cmd) => {
         let maple = _.isString(script) ? MP.fromFile(MP.searchMaple(script)) : MP.fromText(await stdin());
+        if (maple == undefined) {
+            error(`script not found: '${script}'`)
+            return
+        }
         console.log(await maple.text());
     });
 
