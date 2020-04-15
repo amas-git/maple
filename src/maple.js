@@ -422,6 +422,10 @@ class Maple {
     };
   }
 
+  installHandlers() {
+    // TODO: 安装额外的Handler
+  }
+
   /**
    * Set replaceSeed section
    * @param seed
