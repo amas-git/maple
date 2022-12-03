@@ -5,7 +5,7 @@ const mcore = require('./mcore');
 const L = require('./L')('maple');
 
 var maple_path = (() => {
-  return process.env.MAPLE_PATH ? process.env.MAPLE_PATH.split(':') : [];
+  return process.env.MAPLE_PATH ? process.env.MAPLE_PATH.split(':') : ["."];
 })();
 
 /**
